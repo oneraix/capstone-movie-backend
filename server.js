@@ -40,9 +40,11 @@ initSocket(httpServer)// truyền httpServer vào init.socket.js
 
 
 
-httpServer.listen(3069, () =>{
-    console.log(`Server is running on port http://localhost:3069`);
-    console.log(`Swagger UI available at http://localhost:3069/api-docs`);
+const PORT = process.env.PORT || 3069;
+
+httpServer.listen(PORT, '0.0.0.0', () =>{
+    console.log(`Server is running on port ${PORT}`);
+    console.log(`Swagger UI available at http://localhost:${PORT}/api-docs`);
 });
 
 /**
