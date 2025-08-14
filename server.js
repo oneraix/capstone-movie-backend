@@ -47,6 +47,17 @@ httpServer.listen(PORT, '0.0.0.0', () =>{
     console.log(`Swagger UI available at /api-docs`);
 });
 
+// Handle uncaught exceptions
+process.on('uncaughtException', (err) => {
+    console.error('Uncaught Exception:', err);
+    process.exit(1);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+    console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+    process.exit(1);
+});
+
 /**
  * express: lõi để xây dựng BE -> API
  * nodemon: reload lại server khi có code thay
@@ -54,3 +65,5 @@ httpServer.listen(PORT, '0.0.0.0', () =>{
  * sequelize: ORM giúp tương tác với DB bằng function
  * sequelize-auto: Tự động tạo code model cho sequelize từ database có sẵn
  */
+
+export default app;
