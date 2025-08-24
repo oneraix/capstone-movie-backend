@@ -1,0 +1,143 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Banner {
+  maBanner  Int       @id @default(autoincrement())
+  maPhim    Int
+  hinhAnh   String    @db.VarChar(500)
+  createdAt DateTime? @default(now()) @db.Timestamp(0)
+  Phim      Phim      @relation(fields: [maPhim], references: [maPhim], onDelete: Cascade, onUpdate: NoAction, map: "Banner_ibfk_1")
+
+  @@index([maPhim], map: "idx_maPhim")
+}
+
+model CumRap {
+  maCumRap     String     @id @db.VarChar(20)
+  tenCumRap    String     @db.VarChar(200)
+  diaChi       String     @db.Text
+  maHeThongRap String     @db.VarChar(10)
+  createdAt    DateTime?  @default(now()) @db.Timestamp(0)
+  HeThongRap   HeThongRap @relation(fields: [maHeThongRap], references: [maHeThongRap], onDelete: Cascade, onUpdate: NoAction, map: "CumRap_ibfk_1")
+  RapPhim      RapPhim[]
+
+  @@index([maHeThongRap], map: "idx_maHeThongRap")
+}
+
+model DatVe {
+  taiKhoan    String    @db.VarChar(50)
+  maLichChieu Int
+  maGhe       Int
+  createdAt   DateTime? @default(now()) @db.Timestamp(0)
+  NguoiDung   NguoiDung @relation(fields: [taiKhoan], references: [taiKhoan], onDelete: Cascade, onUpdate: NoAction, map: "DatVe_ibfk_1")
+  LichChieu   LichChieu @relation(fields: [maLichChieu], references: [maLichChieu], onDelete: Cascade, onUpdate: NoAction, map: "DatVe_ibfk_2")
+  Ghe         Ghe       @relation(fields: [maGhe], references: [maGhe], onDelete: Cascade, onUpdate: NoAction, map: "DatVe_ibfk_3")
+
+  @@id([taiKhoan, maLichChieu, maGhe])
+  @@index([createdAt], map: "idx_datve_created")
+  @@index([maGhe], map: "idx_maGhe")
+  @@index([maLichChieu], map: "idx_maLichChieu")
+  @@index([taiKhoan], map: "idx_taiKhoan")
+}
+
+model Ghe {
+  maGhe     Int          @id @default(autoincrement())
+  tenGhe    String       @db.VarChar(10)
+  loaiGhe   Ghe_loaiGhe? @default(Thuong)
+  maRap     Int
+  createdAt DateTime?    @default(now()) @db.Timestamp(0)
+  DatVe     DatVe[]
+  RapPhim   RapPhim      @relation(fields: [maRap], references: [maRap], onDelete: Cascade, onUpdate: NoAction, map: "Ghe_ibfk_1")
+
+  @@unique([tenGhe, maRap], map: "unique_ghe_rap")
+  @@index([loaiGhe], map: "idx_loaiGhe")
+  @@index([maRap], map: "idx_maRap")
+}
+
+model HeThongRap {
+  maHeThongRap  String    @id @db.VarChar(10)
+  tenHeThongRap String    @db.VarChar(100)
+  logo          String?   @db.VarChar(500)
+  createdAt     DateTime? @default(now()) @db.Timestamp(0)
+  CumRap        CumRap[]
+}
+
+model LichChieu {
+  maLichChieu  Int       @id @default(autoincrement())
+  maRap        Int
+  maPhim       Int
+  ngayGioChieu DateTime  @db.DateTime(0)
+  giaVe        Decimal   @db.Decimal(10, 2)
+  createdAt    DateTime? @default(now()) @db.Timestamp(0)
+  updatedAt    DateTime? @default(now()) @db.Timestamp(0)
+  DatVe        DatVe[]
+  RapPhim      RapPhim   @relation(fields: [maRap], references: [maRap], onDelete: Cascade, onUpdate: NoAction, map: "LichChieu_ibfk_1")
+  Phim         Phim      @relation(fields: [maPhim], references: [maPhim], onDelete: Cascade, onUpdate: NoAction, map: "LichChieu_ibfk_2")
+
+  @@unique([maRap, maPhim, ngayGioChieu], map: "unique_lich_chieu")
+  @@index([ngayGioChieu], map: "idx_lichchieu_datetime")
+  @@index([maPhim], map: "idx_maPhim")
+  @@index([maRap], map: "idx_maRap")
+  @@index([ngayGioChieu], map: "idx_ngayGioChieu")
+}
+
+model NguoiDung {
+  taiKhoan        String    @id @db.VarChar(50)
+  hoTen           String    @db.VarChar(100)
+  email           String    @unique(map: "email") @db.VarChar(100)
+  soDt            String    @db.VarChar(15)
+  matKhau         String    @db.VarChar(255)
+  maNhom          String?   @default("GP01") @db.VarChar(10)
+  maLoaiNguoiDung String?   @default("KhachHang") @db.VarChar(20)
+  createdAt       DateTime? @default(now()) @db.Timestamp(0)
+  updatedAt       DateTime? @default(now()) @db.Timestamp(0)
+  DatVe           DatVe[]
+
+  @@index([email], map: "idx_email")
+  @@index([maLoaiNguoiDung], map: "idx_loaiNguoiDung")
+}
+
+model Phim {
+  maPhim        Int         @id @default(autoincrement())
+  tenPhim       String      @db.VarChar(200)
+  trailer       String?     @db.VarChar(500)
+  hinhAnh       String?     @db.VarChar(500)
+  moTa          String?     @db.Text
+  ngayKhoiChieu DateTime    @db.Date
+  danhGia       Decimal?    @default(0.0) @db.Decimal(2, 1)
+  hot           Boolean?    @default(false)
+  dangChieu     Boolean?    @default(true)
+  sapChieu      Boolean?    @default(false)
+  createdAt     DateTime?   @default(now()) @db.Timestamp(0)
+  updatedAt     DateTime?   @default(now()) @db.Timestamp(0)
+  Banner        Banner[]
+  LichChieu     LichChieu[]
+
+  @@index([dangChieu], map: "idx_dangChieu")
+  @@index([hot], map: "idx_hot")
+  @@index([ngayKhoiChieu], map: "idx_ngayKhoiChieu")
+  @@index([dangChieu, sapChieu, hot], map: "idx_phim_status")
+  @@index([sapChieu], map: "idx_sapChieu")
+}
+
+model RapPhim {
+  maRap     Int         @id @default(autoincrement())
+  tenRap    String      @db.VarChar(100)
+  maCumRap  String      @db.VarChar(20)
+  createdAt DateTime?   @default(now()) @db.Timestamp(0)
+  Ghe       Ghe[]
+  LichChieu LichChieu[]
+  CumRap    CumRap      @relation(fields: [maCumRap], references: [maCumRap], onDelete: Cascade, onUpdate: NoAction, map: "RapPhim_ibfk_1")
+
+  @@index([maCumRap], map: "idx_maCumRap")
+}
+
+enum Ghe_loaiGhe {
+  Thuong
+  Vip
+}
