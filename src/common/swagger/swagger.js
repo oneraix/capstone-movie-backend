@@ -20,7 +20,7 @@ const swaggerDocument = {
       description: "Local Server",
     },
     {
-      url: "http://minhhieu:3069",
+      url: "/",
       description: "Product Server",
     },
   ],
