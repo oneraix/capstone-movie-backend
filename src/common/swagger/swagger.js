@@ -16,7 +16,7 @@ const swaggerDocument = {
   },
   servers: [
     {
-      url: "http://localhost:3069",
+      url: "/",
       description: "Local Server",
     },
     {
